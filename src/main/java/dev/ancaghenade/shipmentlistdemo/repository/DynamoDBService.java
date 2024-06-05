@@ -1,9 +1,6 @@
 package dev.ancaghenade.shipmentlistdemo.repository;
 
 import dev.ancaghenade.shipmentlistdemo.entity.Shipment;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
@@ -11,6 +8,10 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 public class DynamoDBService {

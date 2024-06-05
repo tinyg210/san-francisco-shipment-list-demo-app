@@ -3,16 +3,6 @@ package dev.ancaghenade.shipmentpicturelambdavalidator;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.jayway.jsonpath.JsonPath;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import javax.imageio.ImageIO;
 import org.apache.http.entity.ContentType;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -22,6 +12,17 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 
 public class ServiceHandler implements RequestStreamHandler {
@@ -64,7 +65,7 @@ public class ServiceHandler implements RequestStreamHandler {
 
     // Check if the image was already processed
     if (s3ObjectResponse.response().metadata().entrySet().stream().anyMatch(
-        entry -> entry.getKey().equals("exclude-lambda") && entry.getValue().equals("true"))) {
+        entry -> entry.getKey().equals("skip-processing") && entry.getValue().equals("true"))) {
       context.getLogger().log("Object already present.");
       return;
     }
@@ -98,7 +99,7 @@ public class ServiceHandler implements RequestStreamHandler {
         var putObjectRequest = PutObjectRequest.builder()
             .bucket(BUCKET_NAME)
             .key(objectKey)
-            .metadata(Collections.singletonMap("exclude-lambda", "true"))
+            .metadata(Collections.singletonMap("skip-processing", "true"))
             .build();
 
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageBytes));
@@ -114,7 +115,7 @@ public class ServiceHandler implements RequestStreamHandler {
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(BUCKET_NAME)
           .key(objectKey)
-          .metadata(Collections.singletonMap("exclude-lambda", "true"))
+          .metadata(Collections.singletonMap("skip-processing", "true"))
           .build();
 
       s3Client.putObject(putObjectRequest, RequestBody.fromBytes(
@@ -143,7 +144,7 @@ public class ServiceHandler implements RequestStreamHandler {
         return keys.iterator().next();
       }
     } catch (IOException ioe) {
-      context.getLogger().log("caught IOException reading input stream");
+      context.getLogger().log("caught IOException reading input stream: " + ioe.getMessage());
     }
     return null;
   }
